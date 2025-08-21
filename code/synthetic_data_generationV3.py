@@ -226,29 +226,28 @@ Regras Rígidas que Você Deve Seguir:
 }
 
 }
-
 USER_PROMPT_TEMPLATES = {
+    "en": """Please rewrite the following expert summary for the specified target audience. Use the full article for context if needed.
+**Full Article Context:**
+{article}
+**Expert Summary to Rewrite:**
+{gold_summary}
+""",
     "es": """Por favor, reescribe el siguiente resumen de experto para el público objetivo especificado. Usa el artículo completo como contexto si es necesario.
-
 **Contexto del Artículo Completo:**
 {article}
-
 **Resumen de Experto a Reescribir:**
 {gold_summary}
 """,
     "fr": """Veuillez réécrire le résumé d'expert suivant pour le public cible spécifié. Utilisez l'article complet comme contexte si nécessaire.
-
 **Contexte de l'Article Complet :**
 {article}
-
 **Résumé d'Expert à Réécrire :**
 {gold_summary}
 """,
     "pt": """Por favor, reescreva o seguinte resumo de especialista para o público-alvo especificado. Use o artigo completo como contexto, se necessário.
-
 **Contexto do Artigo Completo:**
 {article}
-
 **Resumo do Especialista a Ser Reescrito:**
 {gold_summary}
 """
@@ -256,7 +255,6 @@ USER_PROMPT_TEMPLATES = {
 
 def generate_synthetic_summary(article, gold_summary, band, lang):
     """Call an OpenAI model to generate a synthetic summary for a given readability band and language."""
-    
     prompts_for_lang = ALL_PROMPTS.get(lang)
     user_prompt_template = USER_PROMPT_TEMPLATES.get(lang)
     if not prompts_for_lang or not user_prompt_template:
@@ -268,7 +266,7 @@ def generate_synthetic_summary(article, gold_summary, band, lang):
     for attempt in range(3):
         try:
             response = client.chat.completions.create(
-                model="gpt-4.1-mini",
+                model="gpt-4o",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
@@ -338,6 +336,8 @@ def build_synthetic_dataset(input_path, output_path, lang, max_samples=None):
         json.dump(results, f, ensure_ascii=False, indent=4)
     print(f"Dataset saved to {output_path}")
 
+# --- Example Usage for English ---
+# To run for English, set lang = "en" and point to your English data file.
 lang = "fr" 
 path = f"/home/mshahidul/readctrl/data/testing_data_gs/multiclinsum_gs_train_{lang}.json" 
 output_file = f"/home/mshahidul/readctrl/generating_data/{lang}_syntheticV1.json" 
